@@ -750,9 +750,15 @@ const RelationModalWithContext = ({
 
   const options = data?.results ?? [];
 
+  /**
+   * When the selection changes the typed text is cleared. The server search must be cleared too,
+   * otherwise the dropdown keeps filtering by the text that was used to pick the option (the
+   * combobox closes with that stale text before this effect runs).
+   */
   React.useLayoutEffect(() => {
     setTextValue('');
-  }, [fieldValue]);
+    setSearchParams((s) => ({ ...s, _q: '', page: 1 }));
+  }, [fieldValue, setSearchParams]);
 
   const handleSearch = async (search: string) => {
     setSearchParams((s) => ({ ...s, _q: search, page: 1 }));

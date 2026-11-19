@@ -122,13 +122,19 @@ const relationsApi = contentManagerApi.injectEndpoints({
       },
       serializeQueryArgs: (args) => {
         const { endpointName, queryArgs } = args;
+        /**
+         * The cache key must include every param that changes the results, e.g. the `id` of the
+         * source document/component (the same field can exist on several dynamic-zone components,
+         * each with different connected relations). `page` is excluded on purpose so that paginated
+         * responses are merged into a single cache entry by the `merge` function below.
+         */
+        const { page: _page, ...params } = queryArgs.params ?? {};
+
         return {
           endpointName,
           model: queryArgs.model,
           targetField: queryArgs.targetField,
-          _q: queryArgs.params?._q,
-          idsToOmit: queryArgs.params?.idsToOmit,
-          idsToInclude: queryArgs.params?.idsToInclude,
+          params,
         };
       },
       merge: (currentCache, newItems) => {
